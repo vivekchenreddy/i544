@@ -48,6 +48,16 @@ describe('chowDown', function() {
     assert.equal(results._errors?.[0]?.code, 'NOT_FOUND');
   });
 
+  it ('must find eatery categories for a specific id and category', function () {
+    const results = chowDown.menu('5.70','everything else');
+    assert(results.length > 0);
+  });
+
+  it ('must return a NOT_FOUND error for a non-existent id and category', function () {
+    const results = chowDown.menu('5.70', 'abc');
+    assert.equal(results._errors?.[0]?.code, 'NOT_FOUND');
+  });
+
 
 });	
 

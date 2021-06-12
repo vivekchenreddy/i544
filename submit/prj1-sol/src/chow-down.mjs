@@ -49,10 +49,6 @@ class ChowDown {
       }
     }
     data.sort((a, b) => parseFloat(a.dist) - parseFloat(b.dist));
-    // console.log(data);
-    // if(data === undefined || data.length == 0){
-    //   throw new AppError("djfij",);
-    // }
     return data;
   }
 
@@ -63,18 +59,23 @@ class ChowDown {
   categories(eid) {
     //TODO
     let i;
-    var keys = [];
+    const keys = [];
     for (i = 0; i < this.eateries.length; i++) {
       if (this.eateries[i]['id'] === eid) {
         for (var k in this.eateries[i].menu) keys.push(k);
       }
     }
-    return keys;
+    if(keys.length===0){
+      const msg = `bad eatery id ${eid}`;
+      return { _errors: [ new AppError(msg, { code: 'NOT_FOUND', }), ] };
+    }else {
+      return keys;
+    }
   }
 
   /** return list of menu-items for eatery eid in the specified
    *  category.  Return errors if eid or category are invalid
-   *  with error object having code property 'NOT_FOUND'.
+   *  with error object having code properVpDcbYKty 'NOT_FOUND'.
    */
   menu(eid, category) {
     //TODO
@@ -85,11 +86,15 @@ class ChowDown {
         for (const k in this.eateries[i].menu)
         {
           if(k.toLowerCase()===category.toLowerCase()){
-            data.push(this.eateries[i].menu[k]);
+            data.push(this.eateries[i].menu[k][0]);
           }
         }
       }
       }
+    if(data.length===0) {
+      const msg = `bad category ${category}`;
+      return {_errors: [new AppError(msg, {code: 'NOT_FOUND',}),]};
+    }
     return data;
     }
 
