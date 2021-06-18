@@ -80,6 +80,7 @@ class ChowDown {
    *  with error object having code properVpDcbYKty 'NOT_FOUND'.
    */
   menu(eid, category) {
+    console.log("menu" + " [ "+"\'"+eid.toString()+"\'"+"\,"+"\'"+category.toString()+"\'"+" ] ")
     let i=0;
     const data=[];
     while (i < this.eateries.length) {
