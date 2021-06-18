@@ -36,6 +36,11 @@ describe('chowDown', function() {
     assert(results.length === 0);
   });
 
+  it ('must return empty list for no cuisine entry', function () {
+    const results = chowDown.locate('abc');
+    assert(results.length === 0);
+  });
+
   it ('must find eatery categories', function () {
     const results = chowDown.categories('5.70');
     assert.equal(results.length, 17);
@@ -55,6 +60,11 @@ describe('chowDown', function() {
 
   it ('must return a NOT_FOUND error for a non-existent id and category', function () {
     const results = chowDown.menu('5.70', 'abc');
+    assert.equal(results._errors?.[0]?.code, 'NOT_FOUND');
+  });
+
+  it ('must return a NOT_FOUND error for a non-existent id and category', function () {
+    const results = chowDown.menu('5.7', 'everything else');
     assert.equal(results._errors?.[0]?.code, 'NOT_FOUND');
   });
 

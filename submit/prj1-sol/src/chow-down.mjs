@@ -21,7 +21,6 @@ class ChowDown {
 
   /** Create a new ChowDown object for specified eateries */
   constructor(eateries) {
-    //TODO
     this.eateries = eateries;
   }
 
@@ -35,10 +34,10 @@ class ChowDown {
    *  there are no eateries for the specified cuisine.
    */
   locate(cuisine) {
-    let i;
+    let i=0;
     const data = [];
     const eateryLength = this.eateries.length
-    for (i = 0; i < eateryLength; i++) {
+    while (i < eateryLength){
       if (this.eateries[i]['cuisine'].toLowerCase() === cuisine.toLowerCase()) {
         const filteredEatery = {
           "id": this.eateries[i].id,
@@ -47,6 +46,7 @@ class ChowDown {
         };
         data.push(filteredEatery);
       }
+      i++;
     }
     data.sort((a, b) => parseFloat(a.dist) - parseFloat(b.dist));
     return data;
@@ -57,13 +57,15 @@ class ChowDown {
    *  'NOT_FOUND'.
    */
   categories(eid) {
-    //TODO
-    let i;
+    let i=0;
     const keys = [];
-    for (i = 0; i < this.eateries.length; i++) {
+    while(i<this.eateries.length){
       if (this.eateries[i]['id'] === eid) {
-        for (var k in this.eateries[i].menu) keys.push(k);
+        Object.keys(this.eateries[i].menu).forEach(function(key) {
+          keys.push(key)
+        });
       }
+      i++;
     }
     if(keys.length===0){
       const msg = `bad eatery id ${eid}`;
@@ -78,24 +80,24 @@ class ChowDown {
    *  with error object having code properVpDcbYKty 'NOT_FOUND'.
    */
   menu(eid, category) {
-    //TODO
-    let i;
+    let i=0;
     const data=[];
-    for (i = 0; i < this.eateries.length; i++) {
+    while (i < this.eateries.length) {
       if (this.eateries[i]['id'] === eid) {
         for (const k in this.eateries[i].menu)
         {
           if(k.toLowerCase()===category.toLowerCase()){
-            data.push(this.eateries[i].menu[k][0]);
+            data.push(this.eateries[i].menu[k]);
           }
         }
       }
+      i++
       }
     if(data.length===0) {
       const msg = `bad category ${category}`;
       return {_errors: [new AppError(msg, {code: 'NOT_FOUND',}),]};
     }
-    return data;
+    return data[0];
     }
 
 }
