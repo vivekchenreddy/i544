@@ -80,14 +80,15 @@ class ChowDown {
    *  with error object having code properVpDcbYKty 'NOT_FOUND'.
    */
   menu(eid, category) {
-    console.log("menu" + " [ "+"\'"+eid.toString()+"\'"+"\,"+"\'"+category.toString()+"\'"+" ] ")
     let i=0;
     const data=[];
+    let printCategory=""
     while (i < this.eateries.length) {
       if (this.eateries[i]['id'] === eid) {
         for (const k in this.eateries[i].menu)
         {
           if(k.toLowerCase()===category.toLowerCase()){
+            printCategory=k
             data.push(this.eateries[i].menu[k]);
           }
         }
@@ -98,6 +99,7 @@ class ChowDown {
       const msg = `bad category ${category}`;
       return {_errors: [new AppError(msg, {code: 'NOT_FOUND',}),]};
     }
+    console.log("menu" + " [ "+"\'"+eid.toString()+"\'"+"\, "+"\'"+printCategory+"\'"+" ] ")
     return data[0];
     }
 
