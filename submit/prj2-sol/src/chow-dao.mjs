@@ -166,7 +166,11 @@ class ChowDao {
       if(orderDetails.items==null && nChanges>0){
         orderDetails.items={}
         orderDetails.items[itemId]=nChanges
-      }else if(orderDetails.items==null &&nChanges<0){
+      }else if(orderDetails.items===null  &&nChanges<0){
+        const msg = ` cannot remove ${Math.abs(nChanges)} items with only 0 items available`;
+        return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
+      }
+      else if(orderDetails.items===undefined  &&nChanges<0){
         const msg = ` cannot remove ${Math.abs(nChanges)} items with only 0 items available`;
         return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
       }
@@ -214,7 +218,7 @@ class ChowDao {
           this._eateries.findOne({ _id: eid.replaceAll('.', '_') });
       if (eatery === null) {
         const msg = `cannot find eatery "${eid}"`;
-        return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
+        return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
       }
       const ret = { ...eatery };
       INTERNALS.forEach(i => delete ret[i]);
