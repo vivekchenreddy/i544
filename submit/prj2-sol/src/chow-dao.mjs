@@ -163,13 +163,15 @@ class ChowDao {
       const filter = { _id: orderId };
       const options = { upsert: true };
       const orderDetails=await this.getOrder(orderId);
-      // console.log(orderDetails)
-      if(orderDetails.items==null){
+      if(orderDetails.items==null && nChanges>0){
         orderDetails.items={}
         orderDetails.items[itemId]=nChanges
-      }else {
-
-        if (orderDetails.items[itemId] === undefined) {
+      }else if(orderDetails.items==null &&nChanges<0){
+        const msg = ` cannot remove ${Math.abs(nChanges)} items with only 0 items available`;
+        return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
+      }
+      else {
+        if (orderDetails.items[itemId] === undefined && nChanges>0) {
           orderDetails.items[itemId]= nChanges
           console.log(orderDetails.items)
         } else {
@@ -178,9 +180,10 @@ class ChowDao {
           }else if (nChanges<orderDetails.items[itemId]*(-1)) {
             const msg = `BAD_REQ: cannot remove ${Math.abs(nChanges)} items with only ${orderDetails.items[itemId]} items available`;
             return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
+          }else {
+            orderDetails.items[itemId] = orderDetails.items[itemId] + nChanges;
+            orderDetails.items[itemId] = orderDetails.items[itemId]
           }
-          orderDetails.items[itemId] = orderDetails.items[itemId] + nChanges;
-          orderDetails.items[itemId]= orderDetails.items[itemId]
         }
       }
       // else if(nChanges<0){
@@ -211,7 +214,7 @@ class ChowDao {
           this._eateries.findOne({ _id: eid.replaceAll('.', '_') });
       if (eatery === null) {
         const msg = `cannot find eatery "${eid}"`;
-        return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
+        return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
       }
       const ret = { ...eatery };
       INTERNALS.forEach(i => delete ret[i]);
