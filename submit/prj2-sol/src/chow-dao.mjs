@@ -10,6 +10,7 @@ const MONGO_CONNECT_OPTIONS = { useUnifiedTopology: true };
 
 const EATERIES_COLLECTION = 'eateries';
 const ORDERS='orders';
+const COUNTERS='counters';
 //TODO
 
 // properties which are used only within mongo documents and should be
@@ -57,6 +58,7 @@ class ChowDao {
       const db = params._client.db();
       params._eateries = db.collection(EATERIES_COLLECTION);
       params._orders=db.collection(ORDERS);
+      params._counters=db.collection(COUNTERS)
 
 
       //TODO
@@ -84,24 +86,48 @@ class ChowDao {
     try {
       //TODO
       const newOrder = {};
-      newOrder._id=uuidv4();
-      //newOrder._id=Math.random();
+      newOrder._id=await this._nextOrderId();
       newOrder.eateryId=eateryId;
       const ret = await this._orders.insertOne(newOrder);
       if (ret.insertedCount !== 1) {
         throw `inserted order`;
       }
-      return ({id:newOrder._id,eateryId:newOrder.eateryId})
+      return (ret.ops[0])
     }
     catch (err) {
       const msg = `cannot create new order: ${err}`;
       return { errors: [ new AppError(msg, { code: 'DB'}) ] };
     }
   }
+  async getNextSequenceValue(){
+      const newCounter = {};
+      newCounter._id = "counterId";
+      var counter_id
+      const counterObject=await this._counters.findOne({_id: "counterId"});
+      if(counterObject===null){
+        newCounter.counterId = 1;
+        counter_id=1
+        const ret = await this._counters.insertOne(newCounter);
+      }else{
+        const updateDoc = {
+          "_id" : "counterId",
+          "counterId": counterObject.counterId +1,
+        }
+        const filter = { _id: "counterId" };
+        const options = { upsert: true };
+        counter_id= counterObject.counterId +1
+        await this._counters.replaceOne(filter, updateDoc, options);
+
+      }
+
+    return counter_id;
+  }
+
 
   // Returns a unique, difficult to guess order-id.
   async _nextOrderId() {
-    return uuidv4();
+    return (await this.getNextSequenceValue()+Math.random()).toString()
+        .replace('.', '_');
   }
 
   /** Return object { id, eateryId, items? } containing details for
@@ -133,9 +159,9 @@ class ChowDao {
   async removeOrder(orderId) {
     try {
       //TODO
-      const eatery = await
+      const order = await
           this._orders.findOne({ _id: orderId });
-      if (eatery === null) {
+      if (order === null) {
         const msg = `no order with orderId "${orderId}"`;
         return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
       }
@@ -160,17 +186,17 @@ class ChowDao {
    */
   async editOrder(orderId, itemId, nChanges) {
     try {
-      const filter = { _id: orderId };
       const options = { upsert: true };
       const orderDetails=await this.getOrder(orderId);
+      const filter = { _id: orderDetails._id };
       if(orderDetails.items==null && nChanges>0){
         orderDetails.items={}
         orderDetails.items[itemId]=nChanges
-      }else if(orderDetails.items===null  &&nChanges<0){
+      }else if(orderDetails.items===null && nChanges<0){
         const msg = ` cannot remove ${Math.abs(nChanges)} items with only 0 items available`;
         return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
       }
-      else if(orderDetails.items===undefined  &&nChanges<0){
+      else if(orderDetails.items===undefined && nChanges<0){
         const msg = ` cannot remove ${Math.abs(nChanges)} items with only 0 items available`;
         return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
       }
@@ -178,12 +204,16 @@ class ChowDao {
         if (orderDetails.items[itemId] === undefined && nChanges>0) {
           orderDetails.items[itemId]= nChanges
           console.log(orderDetails.items)
-        } else {
+        }else if(orderDetails.items[itemId]===undefined && nChanges<0){
+          const msg = ` cannot remove ${Math.abs(nChanges)} items with only 0 items available`;
+          return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
+        }
+        else {
           if(nChanges===orderDetails.items[itemId]*(-1)) {
             delete orderDetails.items[itemId]
           }else if (nChanges<orderDetails.items[itemId]*(-1)) {
-            const msg = `BAD_REQ: cannot remove ${Math.abs(nChanges)} items with only ${orderDetails.items[itemId]} items available`;
-            return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
+            const msg = ` cannot remove ${Math.abs(nChanges)} items with only ${orderDetails.items[itemId]} items available`;
+            return { errors: [ new AppError(msg, { code: 'BAD_REQ'}) ] };
           }else {
             orderDetails.items[itemId] = orderDetails.items[itemId] + nChanges;
             orderDetails.items[itemId] = orderDetails.items[itemId]
@@ -201,7 +231,7 @@ class ChowDao {
       }
 
       await this._orders.replaceOne(filter, updateDoc, options);
-      return updateDoc;
+      return orderDetails;
     }
     catch (err) {
       const msg = `cannot read order ${orderId}: ${err}`;
@@ -221,7 +251,7 @@ class ChowDao {
         return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
       }
       const ret = { ...eatery };
-      INTERNALS.forEach(i => delete ret[i]);
+      INTERNALS.forEach(i => delete ret[i]);''
       return ret;
     }
     catch (err) {
