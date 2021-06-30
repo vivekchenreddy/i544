@@ -127,7 +127,7 @@ class ChowDao {
   // Returns a unique, difficult to guess order-id.
   async _nextOrderId() {
     return (await this.getNextSequenceValue()+Math.random()).toString()
-        .replace('.', '_');
+        .replace('.', '_').slice(0,5);
   }
 
   /** Return object { id, eateryId, items? } containing details for
@@ -140,12 +140,13 @@ class ChowDao {
     try {
       //TODO
       const orders = await
-          this._orders.findOne({ _id: orderId.replaceAll('.', '_') });
+          this._orders.findOne({ _id: orderId });
       if (orders === null) {
         const msg = `no order with orderId "${orderId}"`;
         return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
+      }else {
+        return orders;
       }
-      return orders;
     }
     catch (err) {
       const msg = `cannot read order ${orderId}: ${err}`;
@@ -188,25 +189,28 @@ class ChowDao {
     try {
       const options = { upsert: true };
       const orderDetails=await this.getOrder(orderId);
+      if(orderDetails.errors){
+        const msg = `no order with orderId "${orderId}"`;
+        return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
+      }
       const filter = { _id: orderDetails._id };
       if(orderDetails.items==null && nChanges>0){
         orderDetails.items={}
         orderDetails.items[itemId]=nChanges
       }else if(orderDetails.items===null && nChanges<0){
         const msg = ` cannot remove ${Math.abs(nChanges)} items with only 0 items available`;
-        return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
+        return { errors: [ new AppError(msg, { code: 'BAD_REQ'}) ] };
       }
       else if(orderDetails.items===undefined && nChanges<0){
         const msg = ` cannot remove ${Math.abs(nChanges)} items with only 0 items available`;
-        return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
+        return { errors: [ new AppError(msg, { code: 'BAD_REQ'}) ] };
       }
       else {
         if (orderDetails.items[itemId] === undefined && nChanges>0) {
           orderDetails.items[itemId]= nChanges
-          console.log(orderDetails.items)
         }else if(orderDetails.items[itemId]===undefined && nChanges<0){
           const msg = ` cannot remove ${Math.abs(nChanges)} items with only 0 items available`;
-          return { errors: [ new AppError(msg, { code: 'BAD-REQ'}) ] };
+          return { errors: [ new AppError(msg, { code: 'BAD_REQ'}) ] };
         }
         else {
           if(nChanges===orderDetails.items[itemId]*(-1)) {
