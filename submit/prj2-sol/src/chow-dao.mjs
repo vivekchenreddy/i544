@@ -126,8 +126,9 @@ class ChowDao {
 
   // Returns a unique, difficult to guess order-id.
   async _nextOrderId() {
-    return (await this.getNextSequenceValue()+Math.random()).toString()
-        .replace('.', '_').slice(0,5);
+    return new IdGen(await this.getNextSequenceValue()).nextId()
+    // return (await this.getNextSequenceValue()+Math.random()).toString()
+    //     .replace('.', '_').slice(0,5);
   }
 
   /** Return object { id, eateryId, items? } containing details for
