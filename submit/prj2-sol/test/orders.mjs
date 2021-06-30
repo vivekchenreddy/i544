@@ -56,6 +56,14 @@ describe('Orders DAO', function() {
         assert.equal(results.items['abc1'], null);
     });
 
+    it('editing order with multiple items with different Item Ids should append ', async function () {
+        const result = await chowDao.editOrder(id,'abcdefg',4);
+        const result2 = await chowDao.editOrder(id,'hijklmn',3);
+        const result3 = await chowDao.getOrder(id);
+        assert.equal(result3.items['abcdefg'],4);
+        assert.equal(result3.items['hijklmn'],3);
+    });
+
     it ('edit the order with a non existing order number', async function () {
         const results = await chowDao.editOrder('nonExistantOrderId','abc1',-2)
         assert.equal(results.errors[0].code, 'NOT_FOUND');
