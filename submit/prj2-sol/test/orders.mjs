@@ -18,12 +18,17 @@ describe('Orders DAO', function() {
     beforeEach(async ()=> {chowDao = await ChowDao(dbUrl)});
     it ('must create a new order', async function () {
         const results = await chowDao.newOrder(eateryId)
-        id=results._id
+        id=results.id
+        assert.notEqual(results, null);
+    });
+    it ('must get an error for invalid db url', async function () {
+        const results = await chowDao.newOrder(eateryId)
+        id=results.id
         assert.notEqual(results, null);
     });
     it ('get the inserted order', async function () {
         const results = await chowDao.getOrder(id)
-        assert.equal(results._id, id);
+        assert.equal(results.id, id);
     });
 
     it ('should edit the order add items by n changes', async function () {
@@ -51,6 +56,12 @@ describe('Orders DAO', function() {
         assert.equal(results.items['abc1'], 2);
     });
 
+    it ('BAD_REQUEST if we send decrement operation for non existant item', async function () {
+        const results = await chowDao.editOrder(id,'non existant item',-6)
+        assert.isAbove(results.errors?.length, 0);
+        assert.equal(results.errors[0].code, 'BAD_REQ');
+    });
+
     it ('edit the order with n changes by n amount should delete the item in items', async function () {
         const results = await chowDao.editOrder(id,'abc1',-2)
         assert.equal(results.items['abc1'], null);
@@ -73,6 +84,12 @@ describe('Orders DAO', function() {
         const order = await chowDao.removeOrder(id);
         assert.notEqual(order, null);
     });
+
+    it ('get NOT_FOUND error if we are removing non existant order', async function () {
+        const order = await chowDao.removeOrder(id);
+        assert.equal(order.errors[0].code, 'NOT_FOUND');
+    });
+
     it ('must return NOT_FOUND error with bad order id', async function () {
         const order = await chowDao.getOrder(id);
         assert.isAbove(order.errors?.length, 0);
