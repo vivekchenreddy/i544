@@ -92,7 +92,9 @@ class ChowDao {
       if (ret.insertedCount !== 1) {
         throw `inserted order`;
       }
-      return (ret.ops[0])
+      ret.ops[0]["id"]=ret.ops[0]._id
+      delete ret.ops[0]._id
+      return ret.ops[0]
     }
     catch (err) {
       const msg = `cannot create new order: ${err}`;
@@ -146,7 +148,9 @@ class ChowDao {
         const msg = `no order with orderId "${orderId}"`;
         return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
       }else {
-        return orders;
+        orders["id"]=orders._id
+        delete orders._id
+        return orders
       }
     }
     catch (err) {
@@ -167,8 +171,8 @@ class ChowDao {
         const msg = `no order with orderId "${orderId}"`;
         return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
       }
-      return await
-          this._orders.deleteOne({_id: orderId});
+      await this._orders.deleteOne({_id:orderId})
+      return {};
     }
     catch (err) {
       const msg = `cannot read order ${orderId}: ${err}`;
@@ -194,7 +198,7 @@ class ChowDao {
         const msg = `no order with orderId "${orderId}"`;
         return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
       }
-      const filter = { _id: orderDetails._id };
+      const filter = { _id: orderDetails.id };
       if(orderDetails.items==null && nChanges>0){
         orderDetails.items={}
         orderDetails.items[itemId]=nChanges
