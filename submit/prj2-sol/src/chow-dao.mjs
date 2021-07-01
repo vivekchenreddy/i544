@@ -145,7 +145,7 @@ class ChowDao {
       const orders = await
           this._orders.findOne({ _id: orderId });
       if (orders === null) {
-        const msg = `no order with orderId "${orderId}"`;
+        const msg = `no order with orderId ${orderId}`;
         return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
       }else {
         orders["id"]=orders._id
@@ -195,7 +195,7 @@ class ChowDao {
       const options = { upsert: true };
       const orderDetails=await this.getOrder(orderId);
       if(orderDetails.errors){
-        const msg = `no order with orderId "${orderId}"`;
+        const msg = `no order with orderId ${orderId}`;
         return { errors: [ new AppError(msg, { code: 'NOT_FOUND'}) ] };
       }
       const filter = { _id: orderDetails.id };
