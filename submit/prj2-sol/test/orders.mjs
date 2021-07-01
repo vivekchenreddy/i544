@@ -19,12 +19,7 @@ describe('Orders DAO', function() {
     it ('must create a new order', async function () {
         const results = await chowDao.newOrder(eateryId)
         id=results.id
-        assert.notEqual(results, null);
-    });
-    it ('must get an error for invalid db url', async function () {
-        const results = await chowDao.newOrder(eateryId)
-        id=results.id
-        assert.notEqual(results, null);
+        assert.equal(results.eateryId, eateryId);
     });
     it ('get the inserted order', async function () {
         const results = await chowDao.getOrder(id)
@@ -82,7 +77,8 @@ describe('Orders DAO', function() {
 
     it ('remove the order from the collection', async function () {
         const order = await chowDao.removeOrder(id);
-        assert.notEqual(order, null);
+        const orderFetch= await chowDao.getOrder(id)
+        assert.equal(orderFetch.errors[0].code, 'NOT_FOUND');
     });
 
     it ('get NOT_FOUND error if we are removing non existant order', async function () {
