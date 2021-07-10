@@ -1,0 +1,34 @@
+{
+  "name": "prj3-sol",
+  "version": "1.0.0",
+  "description": "Name:Vivek Reddy Chenreddy  B-Number:\tB00859293 Email:\t\tvchenre1@binghamton.edu",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test/",
+    "debug-test": "mocha --inspect-brk test/",
+    "syntax-check": "shopt -s globstar; for f in **/*.mjs; do node -c $f; done;"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^9.0.0",
+    "nyc": "^15.1.0"
+  },
+  "test": "mocha test/",
+  "debug-test": "mocha --inspect-brk test/",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "http-status": "^1.5.0",
+    "mongodb": "^3.6.3",
+    "mongodb-memory-server": "^6.9.6",
+    "nodemon": "^2.0.9",
+    "supertest": "^6.1.3",
+    "uuid": "^8.3.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
