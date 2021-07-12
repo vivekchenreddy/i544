@@ -165,16 +165,9 @@ function newOrder(app) {
       eateryOrderObject=eateryOrder(eatery,result)
       if (result.errors) throw result;
       links.push(  orderLink(req,result.id), )
+      eateryOrderObject["links"]=links
+      res.status(Status.CREATED).send(eateryOrderObject)
 
-      const cuisine=eateryOrderObject["cuisine"]
-      const eateryId=Ideatery
-      const id=eateryOrderObject["id"]
-      const items=eateryOrderObject["items"]
-      const loc=eateryOrderObject["loc"]
-      const name=eateryOrderObject["name"]
-      const total=eateryOrderObject["total"]
-
-      res.status(Status.CREATED).json({cuisine,eateryId,id,items,loc,name,total, links });
     }
     catch(err) {
       const mapped = mapResultErrors(err);
@@ -193,7 +186,7 @@ function newOrder(app) {
  */
 function getOrder(app) {
   //TODO
-  return (async function(req, res) {
+  return (async function (req, res) {
     try {
       const orderId = req.params.orderId;
       const result = await app.locals.dao.getOrder(orderId);
@@ -206,24 +199,15 @@ function getOrder(app) {
       let eateryOrderObject;
       eateryOrderObject = eateryOrder(eatery, result)
 
-      const cuisine = eateryOrderObject["cuisine"]
-      const eateryId = Ideatery
-      const id = eateryOrderObject["id"]
-      const items = eateryOrderObject["items"]
-      const loc = eateryOrderObject["loc"]
-      const name = eateryOrderObject["name"]
-      const total = eateryOrderObject["total"]
-
-      res.status(Status.CREATED).json({cuisine, eateryId, id, items, loc, name, total, links});
-    }
-    catch(err) {
+      eateryOrderObject["links"] = links
+      res.status(Status.CREATED).send(eateryOrderObject)
+    } catch (err) {
       const mapped = mapResultErrors(err);
       res.status(mapped.status).json(mapped);
     }
 
   });
 }
-
 /** Return handler for DELETE /orders/ORDER_ID: Remove order with id
  *  ORDER_ID.
  *
