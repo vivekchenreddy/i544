@@ -265,22 +265,26 @@ function removeOrder(app) {
 function updateOrder(app) {
   return (async function(req, res) {
     try {
-      const errors = [];
+      let result={};
       const orderId = req.params.orderId;
       const itemId = req.query.itemId;
       const nItems = req.query.nItems;
       const validity=itemsValidator(req.query,orderId)
       if(validity.errors)throw validity;
-      const result = await app.locals.dao.editOrder(orderId, itemId, nItems);
+      result = await app.locals.dao.editOrder(orderId, itemId, parseInt(nItems));
+
+      if (result.errors) throw result;
       const Ideatery = result["eateryId"]
       const eatery = await app.locals.dao.getEatery(Ideatery);
+      req.originalUrl=`/orders/${orderId}`
       const links = [selfLink(req),];
-      if (eatery.errors) throw eatery;
       links.push(eateryLink(req, Ideatery),)
       let eateryOrderObject;
       eateryOrderObject = eateryOrder(eatery, result)
-      if (eateryOrderObject.errors) throw eateryOrderObject;
-
+      if(eateryOrderObject.errors){
+        const a=await app.locals.dao.editOrder(orderId, itemId, 0);
+        throw eateryOrderObject;
+      }
       const cuisine = eateryOrderObject["cuisine"]
       const eateryId = Ideatery
       const id = eateryOrderObject["id"]
