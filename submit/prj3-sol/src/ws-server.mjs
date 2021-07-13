@@ -269,14 +269,9 @@ function updateOrder(app) {
         const a=await app.locals.dao.editOrder(orderId, itemId, 0);
         throw eateryOrderObject;
       }
-      const cuisine = eateryOrderObject["cuisine"]
-      const eateryId = Ideatery
-      const id = eateryOrderObject["id"]
-      const items = eateryOrderObject["items"]
-      const loc = eateryOrderObject["loc"]
-      const name = eateryOrderObject["name"]
-      const total = eateryOrderObject["total"]
-      res.status(Status.CREATED).json({cuisine, eateryId, id, items, loc, name, total, links});
+      eateryOrderObject["links"]=links
+
+      res.status(Status.CREATED).send(eateryOrderObject)
 
     }
     catch(err) {
