@@ -257,7 +257,7 @@ function updateOrder(app) {
       if (result.errors) throw result;
       const Ideatery = result["eateryId"]
       const eatery = await app.locals.dao.getEatery(Ideatery);
-      req.originalUrl=`/orders/${orderId}`
+      req.originalUrl=orderUrl(req,orderId)
       const links = [selfLink(req),];
       links.push(eateryLink(req, Ideatery),)
       let eateryOrderObject;
