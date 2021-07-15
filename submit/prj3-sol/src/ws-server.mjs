@@ -76,7 +76,6 @@ function setupRoutes(app) {
   app.get(`${base}/eateries/:eateryId`, getEatery(app));
 
 
-  //TODO: add routes for orders
   app.post(`${base}/orders`,newOrder(app))
   app.get(`${base}/orders/:orderId`,getOrder(app))
   app.patch(`${base}/orders/:orderId`,updateOrder(app))
@@ -174,7 +173,6 @@ function newOrder(app) {
       res.status(mapped.status).json(mapped);
     }
   });
-  //TODO
 }
 
 /** Return handler for GET /orders/ORDER_ID: Return eatery-order with
@@ -185,7 +183,6 @@ function newOrder(app) {
  *  Errors: NOT_FOUND if bad ORDER_ID or no eatery for order's eatery-id.
  */
 function getOrder(app) {
-  //TODO
   return (async function (req, res) {
     try {
       const orderId = req.params.orderId;
