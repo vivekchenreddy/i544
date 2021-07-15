@@ -216,8 +216,9 @@ function removeOrder(app) {
   return (async function(req, res) {
     try {
       const orderId = req.params.orderId;
-      const result = await app.locals.dao.removeOrder(orderId);
       const result1 = await app.locals.dao.getOrder(orderId);
+      if (result1.errors ) throw result1
+      const result = await app.locals.dao.removeOrder(orderId);
       if (result.errors) {
         res.status(Status.NOT_FOUND).json(result1);
       } else {
@@ -257,8 +258,9 @@ function updateOrder(app) {
       if (result.errors) throw result;
       const Ideatery = result["eateryId"]
       const eatery = await app.locals.dao.getEatery(Ideatery);
-      req.originalUrl=orderUrl(req,orderId)
-      const links = [selfLink(req),];
+      const links = [ {rel: 'self',
+          name: 'self',
+          href: selfUrl(req,false)}];
       links.push(eateryLink(req, Ideatery),)
       let eateryOrderObject;
       eateryOrderObject = eateryOrder(eatery, result)
