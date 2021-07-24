@@ -1,0 +1,122 @@
+:root {
+  --lightest: #f2f4f1; /* #bfd7ed */
+  --light: #60a3d9;
+  --dark: #0074b7;
+  --darkest: #003b73;
+  --max-width: 600px;
+}
+
+body {
+  color: var(--darkest);
+  background-color: var(--lightest);
+  max-width: var(--max-width);
+  margin-left: 20px;
+}
+
+button {
+  border-radius: 10px;
+  background-color: var(--light);
+  border-color: var(--darkest);
+  color: white;
+}
+
+select {
+  border-radius: 5px;
+  border-color: var(--darkest);
+}
+
+button:hover {
+  background-color: var(--dark);
+}
+
+.scroll {
+  font-size: 150%;
+  padding: 10pt 0pt;
+  width: 100;
+}
+
+.scroll a[rel="prev"] {
+  float: left;
+}
+.scroll a[rel="next"] {
+  float: right;
+}
+
+.eatery-results, .category-items {
+  list-style: none;
+}
+
+.category-items li {
+  padding-top: 20px;
+  display: grid;
+  grid-template-columns: 5.0fr 1fr;
+  grid-gap: 0.2vw;
+}
+
+.eatery-results li {
+  padding-top: 20px;
+  display: grid;
+  grid-template-columns: 2.0fr 1fr 1fr;
+  grid-gap: 4vw;
+}
+
+.item-name {
+  font-weight: bold;
+}
+
+.eatery-name {
+  font-weight: bold;
+  font-size: 120%;
+}
+
+.eatery-categories {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+}
+.item-buy {
+  height: 2em;
+}
+.menu-category {
+  min-width: 150px;
+  padding: 5px;
+  margin: 10px;
+}
+
+h1 {
+  text-align: center;
+}
+
+h2.eatery-name {
+  text-align: center;
+  text-size: 150%;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr;
+  grid-gap: 2vw;
+}
+
+input, textarea, select {
+  width: 30%;
+}
+
+label {
+  font-weight: bold;
+  text-align: right;
+}
+
+
+.error {
+  color: red;
+}
+
+footer li {
+  list-style: none;
+  display: inline;
+}
+footer li + li::before {
+  content: " | ";
+}
+
