@@ -56,47 +56,40 @@ import { newElement, geoLoc } from './util.mjs';
 class EateryResults extends HTMLElement {
 
 
-  static get observedAttributes() { return [ 'ws-url', 'cuisine', ]; }
+    static get observedAttributes() { return [ 'ws-url', 'cuisine', ]; }
 
-  async attributeChangedCallback(name, oldValue, newValue) {
-      const location=await geoLoc()
-      const baseurl=this.getAttribute('ws-url')
-      const url = new URL( baseurl);
-      url.pathname='eateries'+'/'+location.lat
-          +","+location.lng
+    async attributeChangedCallback(name, oldValue, newValue) {
+        const location=await geoLoc()
+        const baseurl=this.getAttribute('ws-url')
+        const url = new URL( baseurl);
+        url.pathname='eateries'+'/'+location.lat
+            +","+location.lng
 
-      console.log(url)
+        console.log(url)
 
-      fetchData(url+"?cuisine"+"="+newValue)
-          .then(wsData => {
-              console.log(wsData.eateries)
-              for(let i of wsData.eateries) {
-                  const hdr = (newElement('ul', {class: 'eatery-results'}));
-                  hdr.appendChild(newElement('li', {},));
-                  hdr.appendChild(newElement('span', {class: 'eatery-name'}, i.name));
-                  hdr.appendChild(newElement('span', {}, i.dist + " " + "miles"));
-                  const buttonSelect=newElement('button', {},'Select');
-                  buttonSelect.addEventListener('click', ev => {
-                      ev.preventDefault();
-                      document.querySelector('eatery-details').
+        fetchData(url+"?cuisine"+"="+newValue)
+            .then(wsData => {
+                console.log(wsData.eateries)
+                for(let i of wsData.eateries) {
+                    const hdr = (newElement('ul', {class: 'eatery-results'}));
+                    hdr.appendChild(newElement('li', {},));
+                    hdr.appendChild(newElement('span', {class: 'eatery-name'}, i.name));
+                    hdr.appendChild(newElement('span', {}, i.dist + " " + "miles"));
+                    const buttonSelect=newElement('button', {},'Select');
+                    buttonSelect.addEventListener('click', ev => {
+                        ev.preventDefault();
+                        document.querySelector('eatery-details').
                         setAttribute('eatery-url', `${this.getAttribute('ws-url')}/eateries/${i.id}`);
-                  });
-                  hdr.appendChild(buttonSelect)
-                  console.log(wsData.links)
-                  hdr.appendChild(newElement('div',{class:'scroll'} , ));
-                  hdr.appendChild(newElement('a',{class:'scroll'} , ));
-                  const buttonScrollEatery=newElement('button', {},`&lt`);
-                  buttonScrollEatery.addEventListener('click', ev => {
-                      ev.preventDefault();
-                      wsData.links.
-                                        });
-                  this.append(hdr);
+                    });
+                    hdr.appendChild(buttonSelect)
+                    hdr.scrollIntoView(true)
+                    this.append(hdr);
 
-              }
-          });
-  }
+                }
+            });
+    }
 
-  //TODO auxiliary methods
+    //TODO auxiliary methods
 }
 
 //register custom-element as eatery-results
@@ -104,7 +97,7 @@ customElements.define('eatery-results', EateryResults);
 
 
 /*
-  A component which shows the details of an eatery.  
+  A component which shows the details of an eatery.
 
   When created, it is set up with a buyFn *property* which should be
   called with an eatery-id and item-id to order a single unit of the
@@ -150,81 +143,81 @@ customElements.define('eatery-results', EateryResults);
 
 class EateryDetails extends HTMLElement {
 
-  static get observedAttributes() { return [ 'eatery-url', ]; }
-  
-  async attributeChangedCallback(name, oldValue, newValue) {
-    try {
-     fetchData(this.getAttribute('eatery-url'), {  })
-          .then(wsData => {
-            console.log(wsData);
-            const name = `${wsData.name} Menu`;
-            const hdr = newElement('h2', { class: 'eatery-name' }, name);
+    static get observedAttributes() { return [ 'eatery-url', ]; }
 
-            for (var i = 0; i < wsData.menuCategories.length; i++) {
-                const category = `${wsData.menuCategories[i]} `;
-                const category1=wsData.menuCategories[i]
-                hdr.appendChild(newElement('ul', { class: 'eatery-categories' }));
-                const button=newElement('button', { class: 'menu-category' },category);
+    async attributeChangedCallback(name, oldValue, newValue) {
+        try {
+            fetchData(this.getAttribute('eatery-url'), {  })
+                .then(wsData => {
+                    console.log(wsData);
+                    const name = `${wsData.name} Menu`;
+                    const hdr = newElement('h2', { class: 'eatery-name' }, name);
 
-                button.addEventListener('click', ev => {
-                    ev.preventDefault();
-                    console.log(category1)
-                    console.log( )
-                    hdr.appendChild(newElement('div', { id: 'category-details' }));
-                    hdr.appendChild(newElement('h2',{} ,category ));
-                    hdr.appendChild(newElement('ul', { class: 'category-items' }));
-                    for(i of wsData.menu[category1]) {
-                        console.log(i)
-                        hdr.appendChild(newElement('li',{} , ));
-                        hdr.appendChild(newElement('span', {class: 'item-name'},wsData.flatMenu[i].name));
-                        hdr.appendChild(newElement('span', {class: 'item-price'},wsData.flatMenu[i].price));
-                        hdr.appendChild(newElement('span', {class: 'item-details'},wsData.flatMenu[i].details));
-                        const buttonItemBuy=newElement('button', { class: 'item-buy' },'Buy');
+                    for (var i = 0; i < wsData.menuCategories.length; i++) {
+                        const category = `${wsData.menuCategories[i]} `;
+                        const category1=wsData.menuCategories[i]
+                        hdr.appendChild(newElement('ul', { class: 'eatery-categories' }));
+                        const button=newElement('button', { class: 'menu-category' },category);
 
-                        buttonItemBuy.addEventListener('click', ev => {
-                            this.buyFn(i,wsData.id)
+                        button.addEventListener('click', ev => {
                             ev.preventDefault();
+                            console.log(category1)
+                            console.log( )
+                            hdr.appendChild(newElement('div', { id: 'category-details' }));
+                            hdr.appendChild(newElement('h2',{} ,category ));
+                            hdr.appendChild(newElement('ul', { class: 'category-items' }));
+                            for(i of wsData.menu[category1]) {
+                                console.log(i)
+                                hdr.appendChild(newElement('li',{} , ));
+                                hdr.appendChild(newElement('span', {class: 'item-name'},wsData.flatMenu[i].name));
+                                hdr.appendChild(newElement('span', {class: 'item-price'},wsData.flatMenu[i].price));
+                                hdr.appendChild(newElement('span', {class: 'item-details'},wsData.flatMenu[i].details));
+                                const buttonItemBuy=newElement('button', { class: 'item-buy' },'Buy');
+
+                                buttonItemBuy.addEventListener('click', ev => {
+                                    this.buyFn(i,wsData.id)
+                                    ev.preventDefault();
+                                });
+                                hdr.appendChild(buttonItemBuy)
+
+                            }
+
+
                         });
-                        hdr.appendChild(buttonItemBuy)
+                        hdr.appendChild(button)
                     }
+                    this.append(hdr);
                 });
-                hdr.appendChild(button)
 
-
-            }
-            this.append(hdr);
-          });
-
+        }
+        catch (err) {
+            return new AppErrors().add(err);
+        }
+        //TODO
     }
-    catch (err) {
-      return new AppErrors().add(err);
-    }
-    //TODO
-  }
 
 
-  //TODO auxiliary methods
-  
+    //TODO auxiliary methods
+
 }
 
 //register custom-element as eatery-details
 customElements.define('eatery-details', EateryDetails);
 
 async function fetchData(url = '', data = {}) {
-  // Default options are marked with *
-  const response = await fetch(url, {
-    method: 'GET', // *GET, POST, PUT, DELETE, etc.
-    mode: 'cors', // no-cors, *cors, same-origin
-    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-    credentials: 'same-origin', // include, *same-origin, omit
-    headers: {
-      'Content-Type': 'application/json'
-      // 'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    redirect: 'follow', // manual, *follow, error
-    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-  });
-  return response.json(); // parses JSON response into native JavaScript objects
+
+    const response = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+    });
+    return response.json();
 }
 
 
@@ -233,7 +226,7 @@ async function fetchData(url = '', data = {}) {
  *  link in links having the specified value.
  */
 function getHref(links, rel) {
-  return links.find(link => link.rel === rel)?.href;
+    return links.find(link => link.rel === rel)?.href;
 }
 
 //TODO auxiliary functions
