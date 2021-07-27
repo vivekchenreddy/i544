@@ -59,34 +59,77 @@ class EateryResults extends HTMLElement {
     static get observedAttributes() { return [ 'ws-url', 'cuisine', ]; }
 
     async attributeChangedCallback(name, oldValue, newValue) {
-        const location=await geoLoc()
-        const baseurl=this.getAttribute('ws-url')
-        const url = new URL( baseurl);
-        url.pathname='eateries'+'/'+location.lat
-            +","+location.lng
+        try {
+            console.log(name)
+            console.log(oldValue)
+            console.log(newValue)
 
-        console.log(url)
 
-        fetchData(url+"?cuisine"+"="+newValue)
-            .then(wsData => {
-                console.log(wsData.eateries)
-                for(let i of wsData.eateries) {
-                    const hdr = (newElement('ul', {class: 'eatery-results'}));
-                    hdr.appendChild(newElement('li', {},));
-                    hdr.appendChild(newElement('span', {class: 'eatery-name'}, i.name));
-                    hdr.appendChild(newElement('span', {}, i.dist + " " + "miles"));
-                    const buttonSelect=newElement('button', {},'Select');
-                    buttonSelect.addEventListener('click', ev => {
-                        ev.preventDefault();
-                        document.querySelector('eatery-details').
-                        setAttribute('eatery-url', `${this.getAttribute('ws-url')}/eateries/${i.id}`);
-                    });
-                    hdr.appendChild(buttonSelect)
-                    hdr.scrollIntoView(true)
-                    this.append(hdr);
+            const location = await geoLoc()
+            const baseurl = this.getAttribute('ws-url')
+            const url = new URL(baseurl);
+            url.pathname = 'eateries' + '/' + location.lat
+                + "," + location.lng
+            let hdr=newElement()
+            let hdr1=newElement()
+            let hdr2=newElement()
 
-                }
+            const wsData=await fetchData(url + "?cuisine" + "=" + this.getAttribute('cuisine'))
+
+
+            console.log(wsData)
+            hdr=newElement('ul', {class: 'eatery-results'},);
+
+            for (let i of wsData.eateries) {
+                const spanattribute=newElement('span', {class: 'eatery-name'}, i.name);
+                const spanattribute1=newElement('span', {}, i.dist + " " + "miles");
+                const buttonSelect = newElement('button', {}, 'Select');
+                buttonSelect.addEventListener('click', ev => {
+                    ev.currentTarget
+                    ev.preventDefault()
+                    // document.querySelector('eatery-details').setAttribute('eatery-url', `${this.getAttribute('ws-url')}/eateries/${i.id}`);
+                });
+                console.log(getHref(wsData.links,'next'))
+                const aattribute=newElement('a', {class:'select-eatery',href:getHref(links,'self')},buttonSelect );
+
+                hdr2=newElement('li', {},);
+                hdr2.append(spanattribute)
+                hdr2.append(spanattribute1)
+                hdr2.append(aattribute)
+                hdr.append(hdr2)
+
+
+
+
+            }
+
+
+
+            const buttonLt = newElement('button', {}, '<');
+            buttonLt.addEventListener('click', ev => {
+                ev.currentTarget
+                ev.preventDefault()
+
             });
+            const hdr4=newElement('a', {rel: 'prev',href:getHref(wsData.links,'prev')},buttonLt)
+
+            const buttonGt = newElement('button', {}, '>');
+            buttonGt.addEventListener('click', ev => {
+                ev.currentTarget
+                ev.preventDefault()
+
+            });
+          const hdr5=newElement('a', {rel: 'next',href:getHref(wsData.links,'next')},buttonGt)
+
+            const hdr6=newElement('div', {class: 'scroll'},hdr5)
+            hdr6.append(hdr4)
+            hdr.append(hdr6)
+            this.append(hdr);
+
+        }
+        catch (err) {
+            return new AppErrors().add(err);
+        }
     }
 
     //TODO auxiliary methods
@@ -152,39 +195,39 @@ class EateryDetails extends HTMLElement {
                     console.log(wsData);
                     const name = `${wsData.name} Menu`;
                     const hdr = newElement('h2', { class: 'eatery-name' }, name);
+                    hdr.append(newElement('ul', { class: 'eatery-categories' }));
 
                     for (var i = 0; i < wsData.menuCategories.length; i++) {
                         const category = `${wsData.menuCategories[i]} `;
                         const category1=wsData.menuCategories[i]
-                        hdr.appendChild(newElement('ul', { class: 'eatery-categories' }));
                         const button=newElement('button', { class: 'menu-category' },category);
 
                         button.addEventListener('click', ev => {
                             ev.preventDefault();
                             console.log(category1)
                             console.log( )
-                            hdr.appendChild(newElement('div', { id: 'category-details' }));
-                            hdr.appendChild(newElement('h2',{} ,category ));
-                            hdr.appendChild(newElement('ul', { class: 'category-items' }));
+                            hdr.append(newElement('div', { id: 'category-details' }));
+                            hdr.append(newElement('h2',{} ,category ));
+                            hdr.append(newElement('ul', { class: 'category-items' }));
                             for(i of wsData.menu[category1]) {
                                 console.log(i)
-                                hdr.appendChild(newElement('li',{} , ));
-                                hdr.appendChild(newElement('span', {class: 'item-name'},wsData.flatMenu[i].name));
-                                hdr.appendChild(newElement('span', {class: 'item-price'},wsData.flatMenu[i].price));
-                                hdr.appendChild(newElement('span', {class: 'item-details'},wsData.flatMenu[i].details));
+                                hdr.append(newElement('li',{} , ));
+                                hdr.append(newElement('span', {class: 'item-name'},wsData.flatMenu[i].name));
+                                hdr.append(newElement('span', {class: 'item-price'},wsData.flatMenu[i].price));
+                                hdr.append(newElement('span', {class: 'item-details'},wsData.flatMenu[i].details));
                                 const buttonItemBuy=newElement('button', { class: 'item-buy' },'Buy');
 
                                 buttonItemBuy.addEventListener('click', ev => {
                                     this.buyFn(i,wsData.id)
                                     ev.preventDefault();
                                 });
-                                hdr.appendChild(buttonItemBuy)
+                                hdr.append(buttonItemBuy)
 
                             }
 
 
                         });
-                        hdr.appendChild(button)
+                        hdr.append(button)
                     }
                     this.append(hdr);
                 });
