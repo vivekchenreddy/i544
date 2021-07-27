@@ -60,19 +60,14 @@ class EateryResults extends HTMLElement {
 
     async attributeChangedCallback(name, oldValue, newValue) {
         try {
-            console.log(name)
-            console.log(oldValue)
-            console.log(newValue)
-
-
             const location = await geoLoc()
             const baseurl = this.getAttribute('ws-url')
             const url = new URL(baseurl);
             url.pathname = 'eateries' + '/' + location.lat
                 + "," + location.lng
-            let hdr=newElement()
-            let hdr1=newElement()
+            let hdr
             let hdr2=newElement()
+
 
             const wsData=await fetchData(url + "?cuisine" + "=" + this.getAttribute('cuisine'))
 
@@ -87,10 +82,11 @@ class EateryResults extends HTMLElement {
                 buttonSelect.addEventListener('click', ev => {
                     ev.currentTarget
                     ev.preventDefault()
-                    // document.querySelector('eatery-details').setAttribute('eatery-url', `${this.getAttribute('ws-url')}/eateries/${i.id}`);
+                    document.querySelector('eatery-details').
+                    setAttribute('eatery-url', `${baseurl}/eateries/${i.id}`)
+                    // this.);
                 });
-                console.log(getHref(wsData.links,'next'))
-                const aattribute=newElement('a', {class:'select-eatery',href:getHref(links,'self')},buttonSelect );
+                const aattribute=newElement('a', {class:'select-eatery',href:`${baseurl}/eateries/${i.id}`},buttonSelect );
 
                 hdr2=newElement('li', {},);
                 hdr2.append(spanattribute)
@@ -98,13 +94,7 @@ class EateryResults extends HTMLElement {
                 hdr2.append(aattribute)
                 hdr.append(hdr2)
 
-
-
-
             }
-
-
-
             const buttonLt = newElement('button', {}, '<');
             buttonLt.addEventListener('click', ev => {
                 ev.currentTarget
@@ -112,19 +102,19 @@ class EateryResults extends HTMLElement {
 
             });
             const hdr4=newElement('a', {rel: 'prev',href:getHref(wsData.links,'prev')},buttonLt)
-
             const buttonGt = newElement('button', {}, '>');
             buttonGt.addEventListener('click', ev => {
                 ev.currentTarget
                 ev.preventDefault()
-
             });
-          const hdr5=newElement('a', {rel: 'next',href:getHref(wsData.links,'next')},buttonGt)
+            const hdr5=newElement('a', {rel: 'next',href:getHref(wsData.links,'next')},buttonGt)
 
-            const hdr6=newElement('div', {class: 'scroll'},hdr5)
+            const hdr6=newElement('div', {class: 'scroll'})
             hdr6.append(hdr4)
-            hdr.append(hdr6)
-            this.append(hdr);
+            hdr6.append(hdr5)
+            this.append(hdr)
+            this.append(hdr6)
+
 
         }
         catch (err) {
@@ -190,47 +180,54 @@ class EateryDetails extends HTMLElement {
 
     async attributeChangedCallback(name, oldValue, newValue) {
         try {
-            fetchData(this.getAttribute('eatery-url'), {  })
-                .then(wsData => {
-                    console.log(wsData);
-                    const name = `${wsData.name} Menu`;
-                    const hdr = newElement('h2', { class: 'eatery-name' }, name);
-                    hdr.append(newElement('ul', { class: 'eatery-categories' }));
+            const wsData=await fetchData(this.getAttribute('eatery-url'))
+            console.log(wsData);
+            let hdr5,hdr6,hdr7,button,ulattribute1
+            const name = `${wsData.name} Menu`;
+            let clicked;
+            const hdr = newElement('h2', { class: 'eatery-name' }, name);
+            const ulattribute=newElement('ul', { class: 'eatery-categories' });
 
-                    for (var i = 0; i < wsData.menuCategories.length; i++) {
-                        const category = `${wsData.menuCategories[i]} `;
-                        const category1=wsData.menuCategories[i]
-                        const button=newElement('button', { class: 'menu-category' },category);
+            for (var i = 0; i < wsData.menuCategories.length; i++) {
+                const category = `${wsData.menuCategories[i]} `;
+                const category1 = wsData.menuCategories[i]
+                button = newElement('button', {class: 'menu-category'}, category);
+                button.addEventListener('click', ev => {
+                    ev.preventDefault();
+                    const categoryDetails=newElement('div', { id: 'category-details' },);
+                    hdr6=newElement('h2',{} ,category1 );
+                    ulattribute1=newElement('ul',{class:'category-items'},)
+                    for(i of wsData.menu[category1]) {
+                        hdr5=newElement('li', {},);
+                        console.log(i)
+                        const spanattribute=newElement('span', {class: 'item-name'},wsData.flatMenu[i].name);
+                        const spanattribute1=newElement('span', {class: 'item-price'},wsData.flatMenu[i].price);
+                        const spanattribute2=newElement('span', {class: 'item-details'},wsData.flatMenu[i].details);
 
-                        button.addEventListener('click', ev => {
+                        const buttonItemBuy = newElement('button', { class: 'item-buy' },'Buy');
+                        buttonItemBuy.addEventListener('click', ev => {
+                            this.buyFn(i,wsData.id)
                             ev.preventDefault();
-                            console.log(category1)
-                            console.log( )
-                            hdr.append(newElement('div', { id: 'category-details' }));
-                            hdr.append(newElement('h2',{} ,category ));
-                            hdr.append(newElement('ul', { class: 'category-items' }));
-                            for(i of wsData.menu[category1]) {
-                                console.log(i)
-                                hdr.append(newElement('li',{} , ));
-                                hdr.append(newElement('span', {class: 'item-name'},wsData.flatMenu[i].name));
-                                hdr.append(newElement('span', {class: 'item-price'},wsData.flatMenu[i].price));
-                                hdr.append(newElement('span', {class: 'item-details'},wsData.flatMenu[i].details));
-                                const buttonItemBuy=newElement('button', { class: 'item-buy' },'Buy');
-
-                                buttonItemBuy.addEventListener('click', ev => {
-                                    this.buyFn(i,wsData.id)
-                                    ev.preventDefault();
-                                });
-                                hdr.append(buttonItemBuy)
-
-                            }
-
-
                         });
-                        hdr.append(button)
+                        hdr5.append(spanattribute)
+                        hdr5.append(spanattribute1)
+                        hdr5.append(spanattribute2)
+                        hdr5.append(buttonItemBuy)
+                        ulattribute1.append(hdr5)
+
                     }
-                    this.append(hdr);
+                    categoryDetails.append(hdr6)
+                    categoryDetails.append(ulattribute1)
+                    this.append(categoryDetails);
+
+
                 });
+
+                ulattribute.append(button)
+
+            }
+
+            this.append(ulattribute);
 
         }
         catch (err) {
