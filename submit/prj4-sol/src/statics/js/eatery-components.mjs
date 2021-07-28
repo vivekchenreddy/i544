@@ -60,6 +60,7 @@ class EateryResults extends HTMLElement {
 
     async attributeChangedCallback(name, oldValue, newValue) {
         try {
+
             const location = await geoLoc()
             const baseurl = this.getAttribute('ws-url')
             const url = new URL(baseurl);
@@ -86,7 +87,7 @@ class EateryResults extends HTMLElement {
                     setAttribute('eatery-url', `${baseurl}/eateries/${i.id}`)
                     // this.);
                 });
-                const aattribute=newElement('a', {class:'select-eatery',href:`${baseurl}/eateries/${i.id}`},buttonSelect );
+                const aattribute=newElement('a', {class:'select-eatery', href: getHref(wsData.links, 'self')},buttonSelect );
 
                 hdr2=newElement('li', {},);
                 hdr2.append(spanattribute)
@@ -94,26 +95,39 @@ class EateryResults extends HTMLElement {
                 hdr2.append(aattribute)
                 hdr.append(hdr2)
 
-            }
-            const buttonLt = newElement('button', {}, '<');
-            buttonLt.addEventListener('click', ev => {
-                ev.currentTarget
-                ev.preventDefault()
+            }console.log(getHref(wsData.links,'prev'))
+            const hdr6=newElement('div', {class: 'scroll'})
 
-            });
-            const hdr4=newElement('a', {rel: 'prev',href:getHref(wsData.links,'prev')},buttonLt)
-            const buttonGt = newElement('button', {}, '>');
+            if(getHref(wsData.links,'prev')!==undefined)
+            {
+                const buttonLt = newElement('button', {}, '<');
+                buttonLt.addEventListener('click', ev => {
+                    ev.currentTarget
+                    ev.preventDefault()
+
+                });
+                const hdr4 = newElement('a', {rel: 'prev', href: getHref(wsData.links, 'prev')}, buttonLt)
+                hdr4.scrollIntoView();
+                hdr6.append(hdr4)
+
+            }
+            const buttonGt = newElement('button', {}, `>`);
             buttonGt.addEventListener('click', ev => {
                 ev.currentTarget
+                console.log("======clicked=========")
                 ev.preventDefault()
             });
             const hdr5=newElement('a', {rel: 'next',href:getHref(wsData.links,'next')},buttonGt)
 
-            const hdr6=newElement('div', {class: 'scroll'})
-            hdr6.append(hdr4)
+            hdr6.scrollIntoView()
             hdr6.append(hdr5)
-            this.append(hdr)
-            this.append(hdr6)
+            this.innerHTML="";
+            this.appendChild(hdr)
+            this.appendChild(hdr6)
+
+            // const abc=this.replaceChild(hdr[1],hdr[0])
+            console.log(hdr)
+            // console.log(hdr[0])
 
 
         }
@@ -182,22 +196,25 @@ class EateryDetails extends HTMLElement {
         try {
             const wsData=await fetchData(this.getAttribute('eatery-url'))
             console.log(wsData);
-            let hdr5,hdr6,hdr7,button,ulattribute1
+            let hdr5,hdr6,hdr7,button,ulattribute1,categoryDetails
             const name = `${wsData.name} Menu`;
-            let clicked;
             const hdr = newElement('h2', { class: 'eatery-name' }, name);
             const ulattribute=newElement('ul', { class: 'eatery-categories' });
-
             for (var i = 0; i < wsData.menuCategories.length; i++) {
+                // this.innerHTML="";
                 const category = `${wsData.menuCategories[i]} `;
                 const category1 = wsData.menuCategories[i]
-                button = newElement('button', {class: 'menu-category'}, category);
+                this.innerHTML="";
+
+                button = newElement('button', {class: 'menu-category'}, category1);
                 button.addEventListener('click', ev => {
                     ev.preventDefault();
-                    const categoryDetails=newElement('div', { id: 'category-details' },);
+                    categoryDetails=newElement('div', { id: 'category-details' },);
                     hdr6=newElement('h2',{} ,category1 );
                     ulattribute1=newElement('ul',{class:'category-items'},)
+
                     for(i of wsData.menu[category1]) {
+
                         hdr5=newElement('li', {},);
                         console.log(i)
                         const spanattribute=newElement('span', {class: 'item-name'},wsData.flatMenu[i].name);
@@ -206,9 +223,10 @@ class EateryDetails extends HTMLElement {
 
                         const buttonItemBuy = newElement('button', { class: 'item-buy' },'Buy');
                         buttonItemBuy.addEventListener('click', ev => {
-                            this.buyFn(i,wsData.id)
+                            this.buyFn(wsData.id,wsData.flatMenu[i].id)
                             ev.preventDefault();
                         });
+
                         hdr5.append(spanattribute)
                         hdr5.append(spanattribute1)
                         hdr5.append(spanattribute2)
@@ -216,6 +234,7 @@ class EateryDetails extends HTMLElement {
                         ulattribute1.append(hdr5)
 
                     }
+
                     categoryDetails.append(hdr6)
                     categoryDetails.append(ulattribute1)
                     this.append(categoryDetails);
@@ -227,6 +246,7 @@ class EateryDetails extends HTMLElement {
 
             }
 
+            this.append(hdr)
             this.append(ulattribute);
 
         }
