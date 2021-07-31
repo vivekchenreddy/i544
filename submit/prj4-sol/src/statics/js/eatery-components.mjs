@@ -61,9 +61,6 @@ class EateryResults extends HTMLElement {
     async attributeChangedCallback(name, oldValue, newValue) {
         try {
 
-            let count=1
-            console.log("======clicked=========",count)
-            console.log(newValue)
 
             let AcualUrl;
             const location = await geoLoc()
@@ -81,7 +78,6 @@ class EateryResults extends HTMLElement {
                     AcualUrl = url + "?cuisine" + "=" + newValue
                 }
             }
-            console.log(AcualUrl)
             let wsData=await fetchData(AcualUrl)
             // let a=wsDataFn(wsData,baseurl)
             let hdr,hdr2
@@ -94,7 +90,6 @@ class EateryResults extends HTMLElement {
                 buttonSelect.addEventListener('click', async ev => {
                     ev.currentTarget
                     ev.preventDefault()
-                    console.log(this.getAttribute('ws-url'))
                     await this.attributeChangedCallback('a', ev.currentTarget.parentNode.href, 'b')
 
                     document.querySelector('eatery-details').setAttribute('eatery-url', `${baseurl}/eateries/${i.id}`)
@@ -123,7 +118,6 @@ class EateryResults extends HTMLElement {
 
 
                 });
-                console.log("=llll==")
 
                 const hdr4 = newElement('a', {rel: 'prev', href: getHref(wsData.links, 'prev')}, buttonLt)
                 hdr6.append(hdr4)
@@ -140,18 +134,15 @@ class EateryResults extends HTMLElement {
 
                 hdr6.append(hdr5)
             }
-            // this.innerHTML="";
 
 
 
-            // hdrmain.append(hdr6)
             this.innerHTML=""
             this.append(hdr)
 
             this.append(hdr6)
 
 
-            // console.log(hdr[0])
 
 
         }
@@ -221,7 +212,6 @@ class EateryDetails extends HTMLElement {
         try {
 
             const wsData=await fetchData(this.getAttribute('eatery-url'))
-            console.log(wsData);
             let hdr5,hdr6,hdr7,button,ulattribute1,categoryDetails
             const name = `${wsData.name} Menu`;
             const hdr = newElement('h2', { class: 'eatery-name' }, name);
@@ -245,7 +235,6 @@ class EateryDetails extends HTMLElement {
                     for(i of wsData.menu[category1]) {
 
                         hdr5=newElement('li', {},);
-                        console.log(i)
                         const spanattribute=newElement('span', {class: 'item-name'},wsData.flatMenu[i].name);
                         const spanattribute1=newElement('span', {class: 'item-price'},wsData.flatMenu[i].price);
                         const spanattribute2=newElement('span', {class: 'item-details'},wsData.flatMenu[i].details);
